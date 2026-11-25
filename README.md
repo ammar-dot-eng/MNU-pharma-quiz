@@ -1,30 +1,27 @@
 # The Niosome Apothecary
 
-A cozy, King's-Quest-shaped night in an apothecary. Ten questions on niosomes become ten
-objects in one illustrated shop. You have one candle, one night, and one glass vessel to
-fill before dawn.
+A cozy ten-question quiz on niosomes, with a live 3D vial being compounded beside it.
+Each correct answer advances the medicine one manufacturing step.
 
 ## Play locally
 
-Open `index.html` in a browser. No build step, no install.
+Open `index.html` in a browser. No build step, no install. The 3D model loads Three.js
+from a pinned CDN; the quiz works without it.
 
-## The night
+## The quiz
 
-- Click an object in the shop to open its question. The answer bottles are the reagents:
-  the right one pours into the glass vessel and shows its explanation.
-- **One candle for the whole night** (24 drops). It burns while you think (1 drop per 3
-  seconds), pauses while you read, and is worth 25 points per leftover drop at dawn.
-- **Consult the ledger** (4 drops, once per question) crosses out one wrong bottle and
-  gives a concept nudge.
-- Seals mark worth: bronze 100, silver 150, gold 200, and one glowing capstone at 300.
-  Order is yours.
-- Correct answers earn station points and 4 drops of wax back (up to 24). A miss leaves
-  that segment cloudy; the first time the candle dies, a spare stub adds 6 drops. If it
-  dies again, the rest of the night finishes untimed in morning light at half value.
-- Dawn pays: clear stations + wax left + 300 for a full vessel. Share the result, tend
-  the missed stations with your leftover wax, or play another night.
+- Ten multiple-choice questions, shuffled each round, 20 seconds each.
+- Correct: 100 points plus 2 per second left. The one-line explanation appears after
+  every answer, and the vial advances a step.
+- The ten steps follow the science: surfactant and cholesterol, the thin film, hydration,
+  aqueous cores, the bilayer, cholesterol set into the membrane, drug loaded, filled,
+  sealed and labelled, finished.
+- Results show score, accuracy, the missed questions with their explanations, and two
+  retries: try the missed questions (the vial keeps its progress) or play again (fresh).
+- Share copies a result line and opens the system share sheet where available.
+- Drag the 3D model to turn it. No progress is stored.
 
-Keyboard: `1`–`4` or `A`–`D` to answer, `H` to consult, `Enter`/`Space` for the rest.
+Keyboard: `1`–`4` or `A`–`D` to answer, `Tab`/`Enter` for the rest.
 
 ## Deploy to GitHub Pages
 
@@ -49,8 +46,8 @@ backend to maintain.
 
 ## Files
 
-- `index.html` — the shop scene, the question slip, and the dawn card.
-- `styles.css` — room, candle, bottles, dawn.
-- `game.js` — questions, candle economy, scoring, WebAudio SFX, sharing.
+- `index.html` — layout, quiz card, results, the 3D specimen panel.
+- `styles.css` — room, parchment, jar, responsive layout.
+- `game.js` — questions, timer, scoring, Three.js vial, SFX, sharing.
 - `docs/design.md` — the design decisions behind it.
 - `push-to-github.ps1` — creates the repo, pushes, and turns on Pages.

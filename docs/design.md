@@ -1,63 +1,46 @@
 # The Niosome Apothecary — Design
 
 ## Intent
-A cozy, King's-Quest-shaped night in an apothecary. Ten questions on niosomes become ten
-objects in one illustrated shop. The player has one candle, one night, and one glass
-vessel to fill before dawn. Static page, GitHub Pages, no backend, no saved progress.
+A cozy ten-question quiz on niosomes with a live 3D object beside it: a vial of niosomal
+medicine being compounded step by step. Correct answers advance the process. Static page,
+GitHub Pages, no backend, no saved progress.
 
 ## Why
-The first build was a quiz with a progress meter: every question was the same single
-action. This revamp adds priced decisions, a shared resource, exploration, and a
-constructed artifact. The apothecary look and warm tone stay. No narrator, no music;
-short synthesized SFX.
+The earlier pass over-designed the game layer (candle economy, routes, ledgers). The user
+wanted a normal quiz again, with one engaging thing to watch: something concrete being
+made, related to the quiz content.
 
-## The night
-A knock at midnight: the healer's apprentice needs a niosome remedy before dawn. The shop
-is one illustrated scene with ten clickable stations (the ten questions, assigned to
-stations in a fresh shuffle each run). Each station carries a brass worth tag. A glass
-vessel on the counter is the progress meter and the final artifact.
+## Shape
+- Parchment quiz card on the left, a sealed glass specimen panel on the right.
+- 20 seconds per question, four shuffled options, one-line explanation after answering.
+- Correct: 100 points + 2 per second left. No lives, no penalties beyond the miss.
+- Every correct answer advances the 3D vial one manufacturing step; a miss leaves the
+  process where it stands.
+- Results: score, accuracy, missed questions with explanations, try-the-missed retry (the
+  vial keeps its progress), play again (fresh vial), and Share.
+- The model can be dragged to turn it.
 
-## Loop
-1. Click a station. A parchment slip opens with the question and four wax-sealed bottles.
-2. The chosen bottle pours into the vessel; the why-line opens. Correct: the segment
-   clears, takes its concept tag, and tips 4 drops of wax back into the candle. Wrong or
-   timed out: the segment stays cloudy, the right bottle and why-line are shown, no tip.
-3. Back to the shop; choose the next station freely.
-
-## Decisions
-- **One candle, whole night.** 24 drops; 1 drop per 3 s while a slip is open and
-  unanswered; paused for reading feedback. Leftover drops are worth 25 points each at
-  dawn. Early dawdling starves the late, high-value stations.
-- **Consult the ledger.** 4 drops, once per station: strikes one wrong bottle and shows a
-  concept nudge (never the answer). A loss on what you know, cheap insurance on the
-  capstone.
-- **Route.** Worth tags: Dusk stations 100, Midnight 150, Before Dawn 200, capstone 300.
-  Order is the player's.
-- **Spare stub.** The first time the candle dies, +6 drops once. The second time, the
-  remaining stations finish untimed in morning light at half value; every explanation is
-  still shown, nothing is skipped.
-
-## Learning
-The correct bottle is the reagent for that concept; the vessel is a labelled revision
-sheet at dawn. Cloudy segments mark gaps and are re-asked by the mending retry. Every
-answer opens its explanation and pauses the candle, so reading is never taxed.
-
-## Dawn
-Score = sum of clear station worth + leftover drops x25 + 300 if every segment is clear.
-The vessel is a focusable diagram: each segment replays its question, answer, why, and
-state. Buttons: Tend the missed stations (keeps filled segments, candle seeded by
-leftover wax, minimum 6) and Another night. A Share button copies a result line (and uses
-the system share sheet where available); a run encoded in the URL hash opens a read-only
-dawn card.
+## The ten 3D steps (tied to the quiz)
+1. A clean vial.
+2. Non-ionic surfactant and cholesterol (Q1, Q5).
+3. Cast the thin film (Q6).
+4. Hydrate the film (Q6).
+5. Aqueous cores form (Q2).
+6. Surfactant bilayer forms around the cores (Q3).
+7. Cholesterol set into the membrane (Q4).
+8. Drug loaded, doxorubicin example (Q10).
+9. Filled to the neck, sealed, labelled.
+10. Boxed and finished.
 
 ## Craft
-- `index.html` — markup, illustrated SVG scene, vessel.
-- `styles.css` — room, candle, slip, bottles, dawn.
-- `game.js` — state, questions, timer, scoring, SFX (WebAudio), share.
-- Accessibility: full keyboard map (1-4/A-D answer, H consult, Enter next), visible focus,
-  aria-live for drops/verdicts, reduced motion, phone layout.
+- Three.js r149 (classic build, pinned on jsDelivr) so `index.html` also works over
+  `file://`; the quiz continues if WebGL is unavailable.
+- All model geometry is procedural (cylinder, sphere, torus, cone, box); no asset files.
+- SFX are short WebAudio tones with a mute toggle. No music, no narrator.
+- Keyboard answering, aria-live feedback, reduced-motion support, phone layout with the
+  specimen stacked above the card.
 - No persistence, no tracking, no audio files.
 
-## Cut from the design panel
-Loose/Bind meters, beam multiplier, seals ladder, commissions, dexterity pouring, and the
-stacked economies. One currency, one priced decision, plus routing.
+## Cut
+The candle economy, consult ledger, routing, stations, dawn scoring, and the shareable
+run hash. One quiz, one model, one result.
