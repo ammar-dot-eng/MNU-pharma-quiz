@@ -1,12 +1,12 @@
 # The Niosome Apothecary
 
-A cozy ten-question quiz on niosomes, with a live 3D vial being compounded beside it.
+A cozy ten-question quiz on niosomes, with a live illustrated bench scene beside it.
 Each correct answer advances the medicine one manufacturing step.
 
 ## Play locally
 
-Open `index.html` in a browser. No build step, no install. The 3D model loads Three.js
-from a pinned CDN; the quiz works without it.
+Open `index.html` in a browser. No build step, no install, no runtime dependencies
+beyond the webfonts (which fall back gracefully).
 
 ## The quiz
 
@@ -19,7 +19,7 @@ from a pinned CDN; the quiz works without it.
 - Results show score, accuracy, the missed questions with their explanations, and two
   retries: try the missed questions (the vial keeps its progress) or play again (fresh).
 - Share copies a result line and opens the system share sheet where available.
-- Drag the 3D model to turn it. No progress is stored.
+- No progress is stored; the scene is hand-drawn SVG, so it renders without WebGL.
 
 Keyboard: `1`–`4` or `A`–`D` to answer, `Tab`/`Enter` for the rest.
 
@@ -48,6 +48,6 @@ backend to maintain.
 
 - `index.html` — layout, quiz card, results, the 3D specimen panel.
 - `styles.css` — room, parchment, jar, responsive layout.
-- `game.js` — questions, timer, scoring, Three.js vial, SFX, sharing.
+- `game.js` — questions, timer, scoring, the SVG step scene, SFX, sharing.
 - `docs/design.md` — the design decisions behind it.
 - `push-to-github.ps1` — creates the repo, pushes, and turns on Pages.
