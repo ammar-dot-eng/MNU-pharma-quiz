@@ -31,6 +31,20 @@
     "finished"
   ];
 
+  var STEP_NOTES = [
+    "A clean glass vial waits on the bench.",
+    "Non-ionic surfactant and cholesterol are poured in.",
+    "The ingredients are cast as a thin film inside the glass.",
+    "Water hydrates the film and swells it into layers.",
+    "Water-filled aqueous cores form.",
+    "A surfactant bilayer closes around each core.",
+    "Cholesterol settles into the membrane, setting its rigidity.",
+    "The drug loads into the cores; the liquid warms.",
+    "The vial is filled to the neck.",
+    "The vial is corked and labelled.",
+    "The finished medicine is boxed."
+  ];
+
   var LETTERS = ["A", "B", "C", "D"];
   var $ = function (id) { return document.getElementById(id); };
   var el = {
@@ -41,7 +55,8 @@
     resultTitle: $("result-title"), resultSub: $("result-sub"), resultScore: $("result-score"),
     resultCorrect: $("result-correct"), remember: $("remember"), missedList: $("missed-list"),
     share: $("share"), shareNote: $("share-note"), replay: $("replay"), mend: $("mend"),
-    assembled: $("assembled"), stepName: $("step-name"), bench: $("bench-svg")
+    assembled: $("assembled"), stepName: $("step-name"), bench: $("bench-svg"),
+    stamp: $("stamp-text"), note: $("step-note"), bar: $("bar")
   };
 
   var S = null, lastMissed = [], muted = false, audio = null;
@@ -70,12 +85,23 @@
     for (var i = 1; i <= 10; i++) el.bench.classList.toggle("step-" + i, model.step >= i);
   }
 
+  function paintStep() {
+    if (el.stamp) {
+      el.stamp.textContent = model.step === 0
+        ? "the bench · a clean vial"
+        : "step " + model.step + " · " + STEPS[model.step];
+    }
+    if (el.note) el.note.textContent = STEP_NOTES[model.step];
+    if (el.bar) el.bar.style.width = (model.step * 10) + "%";
+  }
+
   function revealModel() {
     if (model.step >= 10) return;
     model.step += 1;
     el.assembled.textContent = model.step;
     el.stepName.textContent = STEPS[model.step];
     updateScene();
+    paintStep();
   }
 
   function resetModel() {
@@ -83,6 +109,7 @@
     el.assembled.textContent = "0";
     el.stepName.textContent = STEPS[0];
     updateScene();
+    paintStep();
   }
 
   /* ---------- sound ---------- */

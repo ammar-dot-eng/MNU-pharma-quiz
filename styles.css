@@ -173,6 +173,17 @@ h1 {
 }
 .caption small { font-size: 11px; color: #8fb3a4; }
 .caption b { font-family: "Fraunces", Georgia, serif; font-weight: 600; color: #fdf4df; font-variant-numeric: tabular-nums; }
+.step-note {
+  max-width: 372px; margin: 7px auto 0;
+  font-size: 12px; line-height: 1.5; color: #a9c9b9;
+  min-height: 2.9em; text-align: center;
+}
+.progress {
+  max-width: 372px; height: 4px; margin: 8px auto 0;
+  border-radius: 2px; background: rgba(169, 201, 185, .16); overflow: hidden;
+}
+.progress i { display: block; width: 0; height: 100%; border-radius: 2px; background: linear-gradient(90deg, #4fb39a, #e8c27a); transition: width .5s ease; }
+.stamp-text { font-family: "Karla", sans-serif; font-size: 11px; fill: #5c4229; letter-spacing: .02em; }
 
 /* scene step states */
 .bench-svg .liquid { transform: translateY(190px); transition: transform 1s cubic-bezier(.4, 0, .2, 1); }
@@ -236,7 +247,7 @@ h1 {
   50% { opacity: 1; transform: scale(1.2); }
 }
 
-.bench-svg .flame { transform-origin: 50% 100%; animation: flick 1.7s ease-in-out infinite; }
+.bench-svg .flame { transform-box: fill-box; transform-origin: 50% 100%; animation: flick 1.7s ease-in-out infinite; }
 @keyframes flick {
   0%, 100% { transform: scale(1) rotate(0deg); opacity: .95; }
   35% { transform: scale(1.06, .94) rotate(-2deg); opacity: 1; }
@@ -249,7 +260,7 @@ h1 {
   .stage { grid-template-columns: minmax(0, 1fr); }
   .specimen { order: -1; }
   .bench-frame { max-width: 340px; }
-  .caption { max-width: 340px; }
+  .caption, .step-note, .progress { max-width: 340px; }
 }
 @media (max-width: 680px) {
   .gauges { gap: 14px; }
@@ -260,7 +271,7 @@ h1 {
   .actions .btn { flex: 1 1 auto; }
   .result-title { font-size: 24px; }
   .bench-frame { max-width: 300px; }
-  .caption { max-width: 300px; }
+  .caption, .step-note, .progress { max-width: 300px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
