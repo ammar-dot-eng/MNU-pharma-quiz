@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Niosome Apothecary</title>
+<meta name="description" content="A cozy ten-question quiz on niosomes. Correct answers stock the apothecary shelf.">
+<meta name="theme-color" content="#241a12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232b1d12'/%3E%3Crect x='20' y='24' width='24' height='30' rx='6' fill='%23e0a83e'/%3E%3Crect x='26' y='15' width='12' height='11' rx='2' fill='%238a5a35'/%3E%3Crect x='24' y='34' width='16' height='8' rx='1.5' fill='%23f7e9ce' opacity='.9'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100dvh;
+    font-family: "Karla", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: #f6e8cc;
+    background: #241a12;
+    -webkit-font-smoothing: antialiased;
+  }
+  .room {
+    min-height: 100dvh;
+    padding: clamp(20px, 4vw, 48px) 16px 56px;
+    background:
+      radial-gradient(900px 480px at 50% -140px, rgba(255, 200, 120, .20), transparent 70%),
+      radial-gradient(700px 420px at 50% 108%, rgba(255, 170, 70, .09), transparent 70%),
+      linear-gradient(180deg, #2b2016 0%, #241a12 40%, #1b130c 100%);
+    box-shadow: inset 0 0 180px rgba(0, 0, 0, .55);
+  }
+  .stage { max-width: 980px; margin: 0 auto; }
+
+  .masthead {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 24px; flex-wrap: wrap;
+    margin-bottom: clamp(20px, 3vw, 32px);
+  }
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600; font-size: clamp(24px, 3.4vw, 34px);
+    letter-spacing: -.015em; margin: 0; color: #f8ecd4;
+  }
+  .title p {
+    margin: 6px 0 0; font-size: 13.5px;
+    color: rgba(246, 232, 204, .55); max-width: 44ch;
+  }
+  .stats { display: flex; gap: 28px; }
+  .stat { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }
+  .stat .v {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 24px; font-weight: 500; color: #f8ecd4;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .l { font-size: 11.5px; color: rgba(246, 232, 204, .5); margin-top: 2px; }
+
+  .card {
+    position: relative;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(24px, 3.6vw, 36px) clamp(22px, 3.6vw, 40px) 28px;
+    color: #2b1d12;
+    background: radial-gradient(130% 150% at 18% -10%, #fdf4df 0%, #f5e6c8 48%, #ecdaae 100%);
+    border-radius: 5px;
+    box-shadow: 0 30px 60px -18px rgba(0, 0, 0, .65), 0 1px 0 rgba(255, 255, 255, .7) inset;
+  }
+  .card::before {
+    content: "";
+    position: absolute; top: -13px; left: clamp(20px, 6vw, 54px);
+    width: 96px; height: 26px;
+    background: rgba(240, 220, 180, .5);
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: 1px;
+    transform: rotate(-2.5deg);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
+  }
+
+  .q-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 16px; margin-bottom: 10px;
+  }
+  .meta { margin: 0; font-size: 12.5px; letter-spacing: .02em; color: #8a6a49; }
+  .dial { position: relative; width: 52px; height: 52px; flex: none; margin-top: -6px; }
+  .dial svg { display: block; width: 100%; height: 100%; transform: rotate(-90deg); }
+  .dial .track, .dial .prog { fill: none; stroke-width: 4; }
+  .dial .track { stroke: rgba(122, 92, 64, .16); }
+  .dial .prog {
+    stroke: #b98a4c; stroke-linecap: round;
+    stroke-dasharray: 150.8;
+    transition: stroke-dashoffset .1s linear, stroke .4s ease;
+  }
+  .dial .secs {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: 13.5px; font-weight: 700; color: #6b4c30;
+    font-variant-numeric: tabular-nums; padding-top: 1px;
+  }
+  .card.low .dial .prog { stroke: #b5654f; }
+  .card.low .dial .secs { color: #a4513e; }
+
+  .question {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500; font-size: clamp(20px, 2.5vw, 26px);
+    line-height: 1.38; letter-spacing: -.01em;
+    margin: 0 0 20px; max-width: 36ch;
+  }
+  .question:focus { outline: none; }
+
+  .choices { display: flex; flex-direction: column; gap: 9px; }
+  .choice {
+    display: flex; align-items: flex-start; gap: 13px;
+    width: 100%; text-align: left;
+    font-family: "Karla", sans-serif; font-size: 15.5px; line-height: 1.45;
+    color: #33231a;
+    background: rgba(255, 255, 255, .36);
+    border: 1px solid rgba(122, 92, 64, .22);
+    border-radius: 9px;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: background .16s ease, border-color .16s ease, transform .16s ease, opacity .2s ease;
+  }
+  .choice:hover:not(:disabled) {
+    background: rgba(255, 255, 255, .68);
+    border-color: rgba(122, 92, 64, .4);
+    transform: translateY(-1px);
+  }
+  .choice:focus-visible { outline: 2.5px solid #b98a4c; outline-offset: 2px; }
+  .choice:disabled { cursor: default; }
+  .key {
+    flex: none; width: 25px; height: 25px; margin-top: -1px;
+    border-radius: 50%;
+    border: 1px solid rgba(160, 120, 72, .55);
+    background: rgba(255, 255, 255, .5);
+    display: grid; place-items: center;
+    font-family: "Fraunces", Georgia, serif; font-size: 13.5px; color: #7a5c40;
+  }
+  .choice.correct { background: rgba(227, 168, 62, .20); border-color: rgba(186, 132, 52, .65); }
+  .choice.correct .key { background: #c99a4d; border-color: #a97c37; color: #fff; }
+  .choice.wrong { background: rgba(180, 105, 90, .14); border-color: rgba(160, 85, 70, .55); }
+  .choice.wrong .key { background: #b5654f; border-color: #9c4f3c; color: #fff; }
+  .choice.dim { opacity: .45; }
+
+  .feedback {
+    display: none; margin-top: 18px; padding-top: 16px;
+    border-top: 1px dashed rgba(122, 92, 64, .32);
+  }
+  .feedback.show { display: block; animation: rise .3s ease-out; }
+  .verdict {
+    font-family: "Fraunces", Georgia, serif; font-weight: 600;
+    font-size: 17.5px; margin: 0 0 5px; color: #7d5a14;
+  }
+  .verdict.bad { color: #a15b47; }
+  .why { margin: 0; font-size: 14.5px; line-height: 1.6; color: #5c4229; max-width: 62ch; }
+
+  .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+  .btn {
+    font-family: "Karla", sans-serif; font-size: 14px; font-weight: 600;
+    border-radius: 7px; padding: 10px 18px; cursor: pointer;
+    border: 1px solid transparent;
+    transition: background .16s, transform .16s, border-color .16s, color .16s;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn:focus-visible { outline: 2.5px solid #b98a4c; outline-offset: 2px; }
+  .btn.primary { background: #33231a; color: #f8ecd4; }
+  .btn.primary:hover { background: #241812; }
+  .btn.ghost { background: transparent; border-color: rgba(90, 65, 48, .4); color: #4d3522; }
+  .btn.ghost:hover { background: rgba(90, 65, 48, .08); }
+
+  .result-title {
+    font-family: "Fraunces", Georgia, serif; font-weight: 600;
+    font-size: clamp(24px, 3.2vw, 32px);
+    margin: 0 0 6px; color: #2b1d12; letter-spacing: -.01em;
+  }
+  .result-title:focus { outline: none; }
+  .result-sub { margin: 0; color: #6b4c30; font-size: 14.5px; }
+  .result-stats { display: flex; align-items: flex-end; gap: 40px; margin: 22px 0 6px; }
+  .result-stats .big {
+    display: block; font-family: "Fraunces", Georgia, serif;
+    font-size: 44px; font-weight: 500; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-stats .big-sm {
+    display: block; font-family: "Fraunces", Georgia, serif;
+    font-size: 26px; font-weight: 500; line-height: 1;
+  }
+  .unit { display: block; margin-top: 4px; font-size: 12px; color: #8a6a49; }
+
+  .remember {
+    margin-top: 22px; padding-top: 18px;
+    border-top: 1px dashed rgba(122, 92, 64, .32);
+  }
+  .remember h3 {
+    font-family: "Fraunces", Georgia, serif; font-size: 16.5px;
+    font-weight: 600; margin: 0 0 12px; color: #4d3522;
+  }
+  .remember ul {
+    list-style: none; margin: 0; padding: 0 6px 0 0;
+    display: flex; flex-direction: column; gap: 14px;
+    max-height: 200px; overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(122, 92, 64, .35) transparent;
+  }
+  .remember ul::-webkit-scrollbar { width: 6px; }
+  .remember ul::-webkit-scrollbar-thumb { background: rgba(122, 92, 64, .35); border-radius: 3px; }
+  .m-q { font-family: "Fraunces", Georgia, serif; font-size: 15px; font-weight: 500; margin: 0 0 3px; color: #33231a; }
+  .m-a { font-size: 13.5px; font-weight: 700; margin: 0 0 3px; color: #7d5a14; }
+  .m-why { font-size: 13.5px; line-height: 1.55; margin: 0; color: #6b4c30; }
+
+  .bench {
+    position: relative;
+    margin-top: clamp(26px, 4vw, 40px);
+    padding: 16px 16px 8px;
+    border-radius: 7px;
+    background:
+      linear-gradient(180deg, rgba(255, 214, 150, .16), rgba(255, 200, 120, 0) 45%),
+      repeating-linear-gradient(93deg, rgba(0, 0, 0, .045) 0 2px, transparent 2px 11px),
+      linear-gradient(180deg, #8a5e3a 0%, #714b2d 52%, #55361f 100%);
+    box-shadow:
+      inset 0 2px 0 rgba(255, 224, 176, .4),
+      inset 0 -16px 26px rgba(0, 0, 0, .35),
+      0 26px 48px -16px rgba(0, 0, 0, .6);
+  }
+  .bench::after {
+    content: ""; position: absolute; left: 14px; right: 14px; bottom: 6px;
+    height: 1px; background: rgba(255, 220, 170, .18);
+  }
+  .slots { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; align-items: end; }
+  .slot { position: relative; height: 98px; display: flex; align-items: flex-end; justify-content: center; }
+  .slot .ghost {
+    position: absolute; bottom: 3px; width: 44px; height: 11px;
+    border: 1.5px dashed rgba(255, 236, 205, .34);
+    border-radius: 50%;
+    transition: opacity .3s ease, border-color .3s ease;
+  }
+  .slot.filled .ghost { opacity: 0; }
+  .bench.waiting .slot:not(.filled) .ghost { border-color: rgba(255, 236, 205, .6); }
+  .item {
+    display: block; width: 100%; max-width: 58px; height: auto;
+    opacity: 0; transform: translateY(8px) scale(.55); transform-origin: 50% 100%;
+  }
+  .slot.filled .item {
+    opacity: 1;
+    animation: pop .52s cubic-bezier(.34, 1.56, .64, 1) both;
+    filter: drop-shadow(0 0 9px rgba(255, 206, 122, .5));
+  }
+
+  @keyframes pop {
+    0% { opacity: 0; transform: translateY(8px) scale(.55) rotate(-3deg); }
+    70% { opacity: 1; transform: translateY(-2px) scale(1.05) rotate(1deg); }
+    100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  [hidden] { display: none !important; }
+  .noscript {
+    max-width: 760px; margin: 0 auto; padding: 18px 20px;
+    background: #f5e6c8; color: #2b1d12; border-radius: 5px;
+  }
+
+  @media (max-width: 680px) {
+    .stats { gap: 20px; }
+    .slots { grid-template-columns: repeat(5, 1fr); gap: 2px 4px; }
+    .slot { height: 80px; }
+    .result-stats { gap: 26px; }
+    .remember ul { max-height: none; overflow: visible; }
+    .actions { flex-wrap: wrap; }
+    .actions .btn { flex: 1 1 auto; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .001ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="room">
+  <main class="stage">
+    <header class="masthead">
+      <div class="title">
+        <h1>The Niosome Apothecary</h1>
+        <p>Ten questions on niosomes. Right answers stock the shelf.</p>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="v" id="score">0</span><span class="l">points</span></div>
+        <div class="stat"><span class="v" id="streak">0</span><span class="l">streak</span></div>
+      </div>
+    </header>
+
+    <noscript><p class="noscript">This quiz needs JavaScript to run. Please enable it and reload.</p></noscript>
+
+    <section class="quiz" id="quiz" aria-labelledby="question">
+      <article class="card" id="question-card">
+        <div class="q-head">
+          <p class="meta" id="meta">Question 1 of 10</p>
+          <div class="dial" aria-hidden="true">
+            <svg viewBox="0 0 56 56">
+              <circle class="track" cx="28" cy="28" r="24"></circle>
+              <circle class="prog" id="prog" cx="28" cy="28" r="24"></circle>
+            </svg>
+            <span class="secs" id="secs">20</span>
+          </div>
+        </div>
+        <h2 class="question" id="question" tabindex="-1"></h2>
+        <div class="choices" id="choices" role="group" aria-labelledby="question"></div>
+        <div class="feedback" id="feedback" role="status" aria-live="polite">
+          <p class="verdict" id="verdict"></p>
+          <p class="why" id="why"></p>
+          <div class="actions">
+            <button class="btn primary" id="next" type="button">Next question</button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="results" id="results" hidden aria-labelledby="result-title">
+      <article class="card">
+        <h2 class="result-title" id="result-title" tabindex="-1"></h2>
+        <p class="result-sub" id="result-sub"></p>
+        <div class="result-stats">
+          <div><span class="big" id="result-score">0</span><span class="unit">points</span></div>
+          <div><span class="big-sm" id="result-streak">0</span><span class="unit">best streak</span></div>
+        </div>
+        <section class="remember" id="remember" hidden>
+          <h3>What to remember</h3>
+          <ul id="missed-list"></ul>
+        </section>
+        <div class="actions">
+          <button class="btn ghost" id="play-again" type="button">Play again</button>
+          <button class="btn primary" id="fill" type="button"></button>
+        </div>
+      </article>
+    </section>
+
+    <div class="bench" id="bench" aria-label="Your shelf">
+      <div class="slots" id="slots"></div>
+    </div>
+  </main>
+</div>
+
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <radialGradient id="flameGlow">
+      <stop offset="0" stop-color="#ffd98a" stop-opacity=".9"></stop>
+      <stop offset="1" stop-color="#ffd98a" stop-opacity="0"></stop>
+    </radialGradient>
+  </defs>
+</svg>
+
+<script>
+(function () {
+  "use strict";
+
+  var QUESTIONS = [
+    {
+      question: "What are niosomes mainly composed of?",
+      options: [
+        "Proteins and carbohydrates",
+        "Non-ionic surfactants and cholesterol",
+        "DNA and RNA",
+        "Metal nanoparticles"
+      ],
+      answer: 1,
+      why: "Niosomes are built from non-ionic surfactants plus cholesterol. No phospholipids — that is what makes them cheaper and more stable than liposomes."
+    },
+    {
+      question: "Where are hydrophilic drugs mainly encapsulated in niosomes?",
+      options: ["Aqueous core", "Hydrophobic bilayer", "Outer surface only", "Cholesterol molecules"],
+      answer: 0,
+      why: "Hydrophilic drugs dissolve in water, so they sit in the water-filled aqueous core."
+    },
+    {
+      question: "Where are lipophilic drugs generally incorporated in niosomes?",
+      options: ["Aqueous core", "Surfactant bilayer", "External aqueous medium", "Only on the outer surface"],
+      answer: 1,
+      why: "Lipophilic drugs prefer fat, so they nest inside the oily surfactant bilayer."
+    },
+    {
+      question: "What is the main role of cholesterol in niosomes?",
+      options: [
+        "Give color to the vesicles",
+        "Act as the drug",
+        "Regulate membrane rigidity and permeability",
+        "Replace the surfactant"
+      ],
+      answer: 2,
+      why: "Cholesterol slips between the surfactant molecules and tunes how rigid and leaky the membrane is."
+    },
+    {
+      question: "Which type of surfactant is mainly used to prepare niosomes?",
+      options: ["Cationic surfactants", "Anionic surfactants", "Non-ionic surfactants", "No surfactants"],
+      answer: 2,
+      why: "Non-ionic surfactants are the defining ingredient — they self-assemble into bilayers without carrying a charge."
+    },
+    {
+      question: "Which technique can be used to prepare niosomes?",
+      options: [
+        "Thin-film hydration",
+        "Tablet compression",
+        "Dry granulation",
+        "Direct encapsulation in hard gelatin capsules"
+      ],
+      answer: 0,
+      why: "Thin-film hydration is the classic route: cast a dry film of surfactant and cholesterol, then hydrate it into vesicles."
+    },
+    {
+      question: "What is a potential advantage of niosomes as drug carriers?",
+      options: [
+        "They always eliminate drug toxicity",
+        "They can improve drug stability and bioavailability",
+        "They cannot carry hydrophilic drugs",
+        "They require no formulation optimization"
+      ],
+      answer: 1,
+      why: "Encapsulation shields the drug, which can improve both stability and bioavailability."
+    },
+    {
+      question: "What is a possible limitation of niosomal formulations?",
+      options: [
+        "They cannot form bilayers",
+        "They always contain metal cores",
+        "Vesicle aggregation during storage",
+        "They cannot encapsulate drugs"
+      ],
+      answer: 2,
+      why: "Vesicles can aggregate or fuse while sitting in storage, so a formulation needs stabilising."
+    },
+    {
+      question: "Why are niosomes being investigated for cancer therapy?",
+      options: [
+        "They can potentially improve anticancer drug delivery",
+        "They directly destroy every cancer cell without drugs",
+        "They replace all chemotherapy treatments",
+        "They guarantee complete cancer recovery"
+      ],
+      answer: 0,
+      why: "Niosomes can carry anticancer drugs and may reduce off-target toxicity — promising, though still under study."
+    },
+    {
+      question: "Which anticancer drug has been investigated in niosomal delivery systems?",
+      options: ["Paracetamol", "Doxorubicin", "Loratadine", "Omeprazole"],
+      answer: 1,
+      why: "Doxorubicin is the classic anticancer drug studied in niosomal delivery."
+    }
+  ];
+
+  var ITEMS = [
+    '<rect x="13" y="32" width="34" height="48" rx="7" fill="#e0a83e"/><rect x="24" y="20" width="12" height="14" fill="#cfe0d8" opacity=".55"/><rect x="22" y="12" width="16" height="10" rx="2" fill="#8a5a35"/><rect x="18" y="44" width="7" height="14" rx="3" fill="#fff" opacity=".3"/><rect x="17" y="58" width="26" height="11" rx="2" fill="#f7e9ce" opacity=".9"/>',
+    '<rect x="25" y="16" width="10" height="24" fill="#79b3a6"/><circle cx="30" cy="58" r="22" fill="#79b3a6" opacity=".92"/><rect x="27" y="8" width="6" height="10" fill="#cfe0d8" opacity=".6"/><rect x="24" y="4" width="12" height="6" rx="2" fill="#8a5a35"/><circle cx="23" cy="56" r="7" fill="#fff" opacity=".22"/>',
+    '<rect x="20" y="20" width="20" height="60" rx="9" fill="#d78f8f"/><rect x="26" y="12" width="8" height="10" fill="#cfe0d8" opacity=".55"/><rect x="24" y="6" width="12" height="7" rx="2" fill="#8a5a35"/><rect x="24" y="32" width="5" height="18" rx="2" fill="#fff" opacity=".3"/>',
+    '<rect x="16" y="36" width="28" height="44" rx="6" fill="#a99bd1"/><rect x="25" y="24" width="10" height="13" fill="#cfe0d8" opacity=".6"/><rect x="24" y="16" width="12" height="9" rx="2" fill="#8a5a35"/><circle cx="30" cy="10" r="7" fill="#8a5a35"/><rect x="21" y="46" width="5" height="14" rx="2" fill="#fff" opacity=".3"/>',
+    '<path d="M8 44 A22 22 0 0 1 52 44 Z" fill="#b98a4c"/><rect x="22" y="64" width="16" height="12" rx="2" fill="#8a5a35"/><ellipse cx="30" cy="44" rx="22" ry="6" fill="#8a5a35"/><ellipse cx="30" cy="44" rx="16" ry="3.5" fill="#6f4127"/><rect x="36" y="22" width="7" height="40" rx="3.5" fill="#c9a15a" transform="rotate(24 39 42)"/>',
+    '<rect x="12" y="40" width="36" height="40" rx="8" fill="#b3b06a"/><rect x="11" y="34" width="38" height="8" rx="3" fill="#8a5a35"/><rect x="18" y="50" width="6" height="12" rx="2" fill="#fff" opacity=".3"/><rect x="16" y="60" width="28" height="10" rx="2" fill="#f7e9ce" opacity=".85"/>',
+    '<rect x="14" y="38" width="32" height="42" rx="10" fill="#dfa23e"/><path d="M11 38 h38 l-4 -10 h-30 z" fill="#d78f8f"/><rect x="26" y="22" width="8" height="6" fill="#8a5a35"/><rect x="19" y="48" width="6" height="12" rx="2" fill="#fff" opacity=".28"/>',
+    '<path d="M16 40 L44 40 L48 80 L12 80 Z" fill="#7f9fc4"/><rect x="24" y="28" width="12" height="14" fill="#cfe0d8" opacity=".55"/><rect x="22" y="22" width="16" height="8" rx="2" fill="#8a5a35"/><path d="M22 48 L26 74" stroke="#fff" stroke-opacity=".25" stroke-width="4"/>',
+    '<rect x="14" y="58" width="34" height="14" rx="2" fill="#f7e9ce" transform="rotate(-3 31 65)"/><rect x="15" y="48" width="32" height="12" rx="2" fill="#efdcba" transform="rotate(2 31 54)"/><rect x="16" y="38" width="30" height="10" rx="2" fill="#e6cf9f" transform="rotate(-2 31 43)"/>',
+    '<rect x="19" y="38" width="22" height="42" rx="4" fill="#f0ddb4"/><rect x="28" y="46" width="4" height="10" fill="#c9a15a"/><circle cx="30" cy="26" r="14" fill="url(#flameGlow)"/><path d="M30 18 Q36 25 30 30 Q24 25 30 18 Z" fill="#ffcf7a"/>'
+  ];
+
+  var LETTERS = ["A", "B", "C", "D"];
+  var TIME_MS = 20000;
+  var CIRC = 150.8;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var quizEl = $("quiz");
+  var resultsEl = $("results");
+  var slotsEl = $("slots");
+  var benchEl = $("bench");
+  var questionCard = $("question-card");
+  var questionEl = $("question");
+  var choicesEl = $("choices");
+  var feedbackEl = $("feedback");
+  var verdictEl = $("verdict");
+  var whyEl = $("why");
+  var nextBtn = $("next");
+  var progEl = $("prog");
+  var secsEl = $("secs");
+
+  var items = new Array(10).fill(false);
+  var slots = [];
+  var state = null;
+  var lastMissed = [];
+
+  function shuffle(list) {
+    var a = list.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function buildSlots() {
+    var html = "";
+    for (var i = 0; i < 10; i++) {
+      html += '<div class="slot" data-slot="' + i + '"><span class="ghost"></span>' +
+        '<svg class="item" viewBox="0 0 60 84" aria-hidden="true"></svg></div>';
+    }
+    slotsEl.innerHTML = html;
+    slots = Array.prototype.slice.call(slotsEl.querySelectorAll(".slot"));
+  }
+
+  function prepare(source) {
+    var wrong = [];
+    for (var i = 0; i < source.options.length; i++) {
+      if (i !== source.answer) wrong.push(source.options[i]);
+    }
+    var correctText = source.options[source.answer];
+    var options = shuffle(wrong.concat([correctText]));
+    return { source: source, options: options, correctIndex: options.indexOf(correctText) };
+  }
+
+  function resetBench() {
+    items = new Array(10).fill(false);
+    slots.forEach(function (slot) {
+      slot.classList.remove("filled");
+      slot.querySelector(".item").innerHTML = "";
+    });
+    benchEl.classList.remove("waiting");
+  }
+
+  function startGame(mode) {
+    if (mode === "full") resetBench();
+    var pool = mode === "full" ? QUESTIONS : lastMissed.slice();
+    state = {
+      mode: mode,
+      queue: shuffle(pool).map(prepare),
+      idx: 0,
+      score: 0,
+      streak: 0,
+      best: 0,
+      correct: 0,
+      missed: [],
+      answered: false,
+      timeLeft: TIME_MS,
+      startedAt: 0,
+      timer: null
+    };
+    benchEl.classList.remove("waiting");
+    resultsEl.hidden = true;
+    quizEl.hidden = false;
+    updateStats();
+    renderQuestion();
+  }
+
+  function updateStats() {
+    $("score").textContent = state.score.toLocaleString();
+    $("streak").textContent = state.streak;
+  }
+
+  function renderQuestion() {
+    var item = state.queue[state.idx];
+    $("meta").textContent = "Question " + (state.idx + 1) + " of " + state.queue.length;
+    questionEl.textContent = item.source.question;
+    choicesEl.innerHTML = "";
+    item.options.forEach(function (text, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "choice";
+      var key = document.createElement("span");
+      key.className = "key";
+      key.textContent = LETTERS[i];
+      var label = document.createElement("span");
+      label.textContent = text;
+      b.appendChild(key);
+      b.appendChild(label);
+      b.addEventListener("click", function () { answer(i); });
+      choicesEl.appendChild(b);
+    });
+    feedbackEl.classList.remove("show");
+    verdictEl.className = "verdict";
+    verdictEl.textContent = "";
+    whyEl.textContent = "";
+    questionCard.classList.remove("low");
+    state.answered = false;
+    questionEl.focus({ preventScroll: true });
+    startTimer();
+  }
+
+  function paintDial(ms) {
+    var frac = ms / TIME_MS;
+    progEl.style.strokeDashoffset = (CIRC * (1 - frac)).toFixed(1);
+    secsEl.textContent = Math.ceil(ms / 1000);
+    questionCard.classList.toggle("low", ms <= 5000);
+  }
+
+  function startTimer() {
+    state.startedAt = performance.now();
+    state.timeLeft = TIME_MS;
+    paintDial(TIME_MS);
+    clearInterval(state.timer);
+    state.timer = setInterval(function () {
+      state.timeLeft = Math.max(0, TIME_MS - (performance.now() - state.startedAt));
+      paintDial(state.timeLeft);
+      if (state.timeLeft <= 0) {
+        clearInterval(state.timer);
+        answer(-1);
+      }
+    }, 100);
+  }
+
+  function answer(choice) {
+    if (!state || state.answered) return;
+    state.answered = true;
+    clearInterval(state.timer);
+
+    var item = state.queue[state.idx];
+    var isCorrect = choice === item.correctIndex;
+    var secsLeft = Math.max(0, Math.ceil(state.timeLeft / 1000));
+
+    Array.prototype.forEach.call(choicesEl.children, function (b, i) {
+      b.disabled = true;
+      if (i === item.correctIndex) b.classList.add("correct");
+      else if (i === choice) b.classList.add("wrong");
+      else b.classList.add("dim");
+    });
+
+    if (isCorrect) {
+      state.streak += 1;
+      state.best = Math.max(state.best, state.streak);
+      state.correct += 1;
+      var mult = Math.min(2, 1 + 0.5 * Math.floor(state.streak / 3));
+      var gained = Math.round((100 + 2 * secsLeft) * mult);
+      state.score += gained;
+      verdictEl.textContent = "Right. +" + gained;
+      verdictEl.className = "verdict";
+      fillNextSlot();
+    } else {
+      state.streak = 0;
+      state.missed.push(item.source);
+      verdictEl.textContent = choice === -1 ? "Time's up." : "Not quite.";
+      verdictEl.className = "verdict bad";
+    }
+
+    whyEl.textContent = item.source.why;
+    feedbackEl.classList.add("show");
+    nextBtn.textContent = state.idx === state.queue.length - 1 ? "See the shelf" : "Next question";
+    updateStats();
+    nextBtn.focus({ preventScroll: true });
+  }
+
+  function fillNextSlot() {
+    var i = items.indexOf(false);
+    if (i === -1) return;
+    items[i] = true;
+    slots[i].querySelector(".item").innerHTML = ITEMS[i];
+    slots[i].classList.add("filled");
+  }
+
+  function endRound() {
+    lastMissed = state.missed.slice();
+    var missed = state.missed.length;
+    quizEl.hidden = true;
+    resultsEl.hidden = false;
+
+    $("result-title").textContent = missed === 0
+      ? "The shelf is full."
+      : missed + (missed === 1 ? " ring left open." : " rings left open.");
+    $("result-sub").textContent = "You answered " + state.correct + " of " + state.queue.length + " correctly.";
+    $("result-score").textContent = state.score.toLocaleString();
+    $("result-streak").textContent = state.best;
+
+    var list = $("missed-list");
+    list.innerHTML = "";
+    state.missed.forEach(function (src) {
+      var li = document.createElement("li");
+      var q = document.createElement("p");
+      q.className = "m-q";
+      q.textContent = src.question;
+      var a = document.createElement("p");
+      a.className = "m-a";
+      a.textContent = src.options[src.answer];
+      var w = document.createElement("p");
+      w.className = "m-why";
+      w.textContent = src.why;
+      li.appendChild(q);
+      li.appendChild(a);
+      li.appendChild(w);
+      list.appendChild(li);
+    });
+
+    $("remember").hidden = missed === 0;
+    var fillBtn = $("fill");
+    fillBtn.hidden = missed === 0;
+    fillBtn.textContent = "Fill the " + missed + (missed === 1 ? " empty ring" : " empty rings");
+    $("result-title").focus({ preventScroll: true });
+    benchEl.classList.add("waiting");
+  }
+
+  nextBtn.addEventListener("click", function () {
+    state.idx += 1;
+    if (state.idx >= state.queue.length) endRound();
+    else renderQuestion();
+  });
+
+  $("play-again").addEventListener("click", function () { startGame("full"); });
+  $("fill").addEventListener("click", function () { startGame("missed"); });
+
+  document.addEventListener("keydown", function (e) {
+    if (!state || state.answered || !resultsEl.hidden) return;
+    var count = choicesEl.children.length;
+    var i = -1;
+    var digits = "1234";
+    var letters = "abcd";
+    if (digits.indexOf(e.key) !== -1) i = digits.indexOf(e.key);
+    else if (letters.indexOf(e.key.toLowerCase()) !== -1) i = letters.indexOf(e.key.toLowerCase());
+    if (i !== -1 && i < count) {
+      e.preventDefault();
+      answer(i);
+    }
+  });
+
+  buildSlots();
+  startGame("full");
+})();
+</script>
+</body>
+</html>
