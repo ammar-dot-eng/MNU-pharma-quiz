@@ -1,70 +1,63 @@
-# Cozy Niosome Quiz — Design
+# The Niosome Apothecary — Design
 
 ## Intent
-A small, cozy, timed multiple-choice quiz on niosomes (the 10 supplied questions) that
-entertains and cements the concepts. Deployed as a static page on GitHub Pages.
+A cozy, King's-Quest-shaped night in an apothecary. Ten questions on niosomes become ten
+objects in one illustrated shop. The player has one candle, one night, and one glass
+vessel to fill before dawn. Static page, GitHub Pages, no backend, no saved progress.
 
 ## Why
-The user wants an interactive game, not a plain quiz: cozy motion, a per-question timer,
-a visible "something being built" for each correct answer, an end retry button, and no
-saved progress.
+The first build was a quiz with a progress meter: every question was the same single
+action. This revamp adds priced decisions, a shared resource, exploration, and a
+constructed artifact. The apothecary look and warm tone stay. No narrator, no music;
+short synthesized SFX.
 
-## Goals
-- 10 questions, 20 s soft timer, instant feedback with a one-line explanation.
-- Visible build: an apothecary bench gains one unique jar, vial, or brass tool per
-  correct answer; a miss leaves a dashed empty ring on the wood.
-- End card: the bench, score, accuracy, best streak, a list of missed questions with
-  their explanations, and two retry buttons.
-- Cozy: warm dark room, parchment label, brass dial, soft motion, no fail state.
-- One static, self-contained page deployable to GitHub Pages.
-- Retry fully resets; nothing is stored.
+## The night
+A knock at midnight: the healer's apprentice needs a niosome remedy before dawn. The shop
+is one illustrated scene with ten clickable stations (the ten questions, assigned to
+stations in a fresh shuffle each run). Each station carries a brass worth tag. A glass
+vessel on the counter is the progress meter and the final artifact.
 
-## Non-goals
-- No accounts, shared leaderboard, or progress across sessions/devices.
-- No backend, build step, or dependencies (webfonts aside).
-- No audio in v1 (a soft chime can be added later).
-- No spaced-repetition scheduling — the retry-missed round is enough.
+## Loop
+1. Click a station. A parchment slip opens with the question and four wax-sealed bottles.
+2. The chosen bottle pours into the vessel; the why-line opens. Correct: the segment
+   clears, takes its concept tag, and tips 4 drops of wax back into the candle. Wrong or
+   timed out: the segment stays cloudy, the right bottle and why-line are shown, no tip.
+3. Back to the shop; choose the next station freely.
 
-## Anti-goals
-- Feeling like an exam or a stress machine; punishing wrong answers; lives/game-over.
-- Anything that needs a server.
+## Decisions
+- **One candle, whole night.** 24 drops; 1 drop per 3 s while a slip is open and
+  unanswered; paused for reading feedback. Leftover drops are worth 25 points each at
+  dawn. Early dawdling starves the late, high-value stations.
+- **Consult the ledger.** 4 drops, once per station: strikes one wrong bottle and shows a
+  concept nudge (never the answer). A loss on what you know, cheap insurance on the
+  capstone.
+- **Route.** Worth tags: Dusk stations 100, Midnight 150, Before Dawn 200, capstone 300.
+  Order is the player's.
+- **Spare stub.** The first time the candle dies, +6 drops once. The second time, the
+  remaining stations finish untimed in morning light at half value; every explanation is
+  still shown, nothing is skipped.
 
-## Constraints
-- Static only: one `index.html` with inline CSS and JS; the only external requests are
-  Google Fonts (Fraunces, Karla).
-- Quiz content fixed as supplied, except the ten "why" lines, which we wrote.
-- 20 s per question; a timeout counts as a missed question.
-- Keyboard answering (1–4 or A–D) and respect for `prefers-reduced-motion`.
+## Learning
+The correct bottle is the reagent for that concept; the vessel is a labelled revision
+sheet at dawn. Cloudy segments mark gaps and are re-asked by the mending retry. Every
+answer opens its explanation and pauses the candle, so reading is never taxed.
 
-## Approaches considered
-- Game layer: score-only (too thin), **build-a-scene (picked)**, hearts/lives (rejected:
-  punitive, fights the cozy goal).
-- Scene: **apothecary bench (picked)** — warm, tactile, and apt to pharmaceutics; glass
-  dome niosome diorama (runner-up: most on-theme, colder); greenhouse (the plant idea,
-  better drawn).
-- Persistence: **none (picked by user)** over localStorage best score.
-- Format: **single self-contained file** over a framework app.
+## Dawn
+Score = sum of clear station worth + leftover drops x25 + 300 if every segment is clear.
+The vessel is a focusable diagram: each segment replays its question, answer, why, and
+state. Buttons: Tend the missed stations (keeps filled segments, candle seeded by
+leftover wax, minimum 6) and Another night. A Share button copies a result line (and uses
+the system share sheet where available); a run encoded in the URL hash opens a read-only
+dawn card.
 
-## How it plays
-- Round: 10 questions; question order and answer positions are shuffled each round.
-- Timer: 20 s brass dial draining slowly; a timeout reveals the answer and moves on.
-- Scoring: 100 per correct answer + 2 per second remaining (max 40). Every three
-  consecutive correct answers adds ×0.5 to the multiplier, capped at ×2.
-- Feedback: the correct choice is marked, the one-line why appears, and the player
-  continues when ready.
-- Bench: ten slots. Correct answers fill the next slot with a unique item, popping in
-  with a small wobble and a warm glow; a miss leaves that slot's dashed ring empty.
-- End card: bench, score, accuracy, best streak, missed questions with their why lines,
-  and two buttons — "Fill the N empty ring(s)" (missed questions only; already-filled
-  items stay) and "Play again" (full reset and reshuffle).
-- No data is stored anywhere.
+## Craft
+- `index.html` — markup, illustrated SVG scene, vessel.
+- `styles.css` — room, candle, slip, bottles, dawn.
+- `game.js` — state, questions, timer, scoring, SFX (WebAudio), share.
+- Accessibility: full keyboard map (1-4/A-D answer, H consult, Enter next), visible focus,
+  aria-live for drops/verdicts, reduced motion, phone layout.
+- No persistence, no tracking, no audio files.
 
-## Hosting
-GitHub Pages, deployed from `main` at the repository root. Public repo (required for
-Pages on the free plan). `push-to-github.ps1` automates repo creation, push, and Pages
-enablement; the manual steps are in `README.md`.
-
-## Extending
-- Swap or restyle the ten bench items in the `ITEMS` array.
-- Change `TIME_MS` for a gentler or sharper timer.
-- Add a soft chime on a correct answer; there is deliberately no audio yet.
+## Cut from the design panel
+Loose/Bind meters, beam multiplier, seals ladder, commissions, dexterity pouring, and the
+stacked economies. One currency, one priced decision, plus routing.
