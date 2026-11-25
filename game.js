@@ -41,7 +41,8 @@
     resultTitle: $("result-title"), resultSub: $("result-sub"), resultScore: $("result-score"),
     resultCorrect: $("result-correct"), remember: $("remember"), missedList: $("missed-list"),
     share: $("share"), shareNote: $("share-note"), replay: $("replay"), mend: $("mend"),
-    assembled: $("assembled"), stepName: $("step-name"), wrap: $("canvas-wrap")
+    assembled: $("assembled"), stepName: $("step-name"), wrap: $("canvas-wrap"),
+    dragHint: document.querySelector(".drag-hint")
   };
 
   var S = null, lastMissed = [], muted = false, audio = null;
@@ -117,29 +118,41 @@
     camera.position.set(0, 0.25, 6.1);
     model.scene = scene; model.camera = camera;
 
-    scene.add(new THREE.AmbientLight(0xfff1d6, 0.6));
-    var key = new THREE.DirectionalLight(0xffe1b0, 1.05); key.position.set(3, 5, 6); scene.add(key);
-    var rim = new THREE.PointLight(0x6fd3c3, 0.8, 16); rim.position.set(-4, 0, 3); scene.add(rim);
+    scene.add(new THREE.AmbientLight(0xfff1d6, 0.55));
+    scene.add(new THREE.HemisphereLight(0xfff3dc, 0x23180f, 0.45));
+    var key = new THREE.DirectionalLight(0xffe1b0, 1.2); key.position.set(3, 5, 6); scene.add(key);
+    var rim = new THREE.PointLight(0x6fd3c3, 0.9, 16); rim.position.set(-4, 0, 3); scene.add(rim);
     model.glow = new THREE.PointLight(0xffc46a, 0.1, 7); model.glow.position.set(0, 0.2, 1.2); scene.add(model.glow);
 
     var group = new THREE.Group();
     scene.add(group); model.group = group;
 
-    var glassMat = new THREE.MeshStandardMaterial({ color: 0xcfe8e4, transparent: true, opacity: 0.15, roughness: 0.08, metalness: 0.05, side: THREE.DoubleSide, depthWrite: false });
-    var vial = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1.9, 40, 1, true), glassMat);
+    var glassMat = new THREE.MeshStandardMaterial({ color: 0xdff2ee, transparent: true, opacity: 0.13, roughness: 0.05, metalness: 0.05, side: THREE.DoubleSide, depthWrite: false });
+    var profile = [
+      new THREE.Vector2(0.0, -0.95),
+      new THREE.Vector2(0.5, -0.95),
+      new THREE.Vector2(0.5, 0.55),
+      new THREE.Vector2(0.485, 0.72),
+      new THREE.Vector2(0.44, 0.84),
+      new THREE.Vector2(0.36, 0.92),
+      new THREE.Vector2(0.3, 0.96),
+      new THREE.Vector2(0.3, 1.12),
+      new THREE.Vector2(0.33, 1.15),
+      new THREE.Vector2(0.33, 1.18)
+    ];
+    var vial = new THREE.Mesh(new THREE.LatheGeometry(profile, 48), glassMat);
     group.add(vial);
-    var bottom = new THREE.Mesh(new THREE.CircleGeometry(0.5, 40), glassMat);
-    bottom.rotation.x = -Math.PI / 2; bottom.position.y = -0.95; group.add(bottom);
-    var neck = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.34, 0.18, 28, 1, true), glassMat);
-    neck.position.y = 1.02; group.add(neck);
-    var rim = new THREE.Mesh(new THREE.TorusGeometry(0.29, 0.035, 10, 28), new THREE.MeshStandardMaterial({ color: 0xb98a4c, roughness: 0.35, metalness: 0.7 }));
-    rim.rotation.x = Math.PI / 2; rim.position.y = 1.11; group.add(rim);
+    var brassMat = new THREE.MeshStandardMaterial({ color: 0xb98a4c, roughness: 0.35, metalness: 0.7 });
+    var rim = new THREE.Mesh(new THREE.TorusGeometry(0.315, 0.022, 10, 32), brassMat);
+    rim.rotation.x = Math.PI / 2; rim.position.y = 1.15; group.add(rim);
     var base = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.55, 0.08, 36), new THREE.MeshStandardMaterial({ color: 0x6f4527, roughness: 0.7 }));
     base.position.y = -0.99; group.add(base);
     var plinth = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.9, 0.1, 40), new THREE.MeshStandardMaterial({ color: 0x4d3220, roughness: 0.8 }));
     plinth.position.y = -1.09; group.add(plinth);
     var brass = new THREE.Mesh(new THREE.TorusGeometry(0.56, 0.02, 8, 40), new THREE.MeshStandardMaterial({ color: 0xc9a15a, roughness: 0.35, metalness: 0.8 }));
     brass.rotation.x = Math.PI / 2; brass.position.y = -0.94; group.add(brass);
+    var shadow = new THREE.Mesh(new THREE.CircleGeometry(0.95, 40), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.28 }));
+    shadow.rotation.x = -Math.PI / 2; shadow.position.y = -1.155; group.add(shadow);
 
     model.liquidMat = new THREE.MeshStandardMaterial({ color: 0x6fb8a8, emissive: 0x2b6b5e, emissiveIntensity: 0.3, transparent: true, opacity: 0.45, roughness: 0.3, depthWrite: false });
     model.liquid = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 1, 36), model.liquidMat);
@@ -151,38 +164,44 @@
     model.film = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.02, 8, 36), new THREE.MeshStandardMaterial({ color: 0xe0c48c, roughness: 0.6 }));
     model.film.rotation.x = Math.PI / 2; model.film.position.y = -0.62; part(model.film, 2, 0.9); group.add(model.film);
 
-    var vesicleSpots = [[-0.13, -0.6, 0.06], [0.14, -0.48, -0.08], [-0.04, -0.36, 0.13], [0.1, -0.24, -0.04], [0.0, -0.12, 0.04]];
+    var vesicleSpots = [[-0.14, -0.56, 0.08], [0.15, -0.44, -0.1], [-0.05, -0.28, 0.14], [0.08, -0.1, -0.02]];
     vesicleSpots.forEach(function (p) {
       var v = new THREE.Group();
       v.position.set(p[0], p[1], p[2]);
       var coreMat = new THREE.MeshStandardMaterial({ color: 0xffce7a, emissive: 0xffb85c, emissiveIntensity: 0.5, roughness: 0.4 });
       var core = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 16), coreMat);
       part(core, 4, 0.95); v.add(core);
-      var shellMat = new THREE.MeshStandardMaterial({ color: 0x79c7b8, roughness: 0.3, metalness: 0.1, side: THREE.DoubleSide });
-      var shell = new THREE.Mesh(new THREE.SphereGeometry(0.16, 24, 18), shellMat);
-      part(shell, 5, 0.32); v.add(shell);
-      for (var b = 0; b < 5; b++) {
-        var th = b * Math.PI * 2 / 5, ph = (b % 2 ? 1 : -1) * 0.7;
-        var bead = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 6), new THREE.MeshStandardMaterial({ color: 0xc9a15a, emissive: 0x8a5a12, emissiveIntensity: 0.3 }));
-        bead.position.set(Math.cos(th) * Math.cos(ph) * 0.16, Math.sin(ph) * 0.16, Math.sin(th) * Math.cos(ph) * 0.16);
+      var shellMat = new THREE.MeshStandardMaterial({ color: 0x79c7b8, roughness: 0.25, metalness: 0.1, side: THREE.DoubleSide });
+      var shell = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 18), shellMat);
+      part(shell, 5, 0.34); v.add(shell);
+      for (var b = 0; b < 6; b++) {
+        var th = b * Math.PI * 2 / 6, ph = (b % 2 ? 1 : -1) * 0.6;
+        var bead = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 6), new THREE.MeshStandardMaterial({ color: 0xd9a441, emissive: 0x8a5a12, emissiveIntensity: 0.25 }));
+        bead.position.set(Math.cos(th) * Math.cos(ph) * 0.17, Math.sin(ph) * 0.17, Math.sin(th) * Math.cos(ph) * 0.17);
         part(bead, 6, 1, false); v.add(bead);
       }
       model.cores.push({ group: v, core: coreMat });
       group.add(v);
     });
 
-    model.stopper = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.27, 0.26, 24), new THREE.MeshStandardMaterial({ color: 0xa9744f, roughness: 0.85 }));
-    model.stopper.position.y = 2.6; model.stopper.visible = false; group.add(model.stopper);
+    var corkMat = new THREE.MeshStandardMaterial({ color: 0xa9744f, roughness: 0.85 });
+    var stopper = new THREE.Group();
+    var cork = new THREE.Mesh(new THREE.CylinderGeometry(0.29, 0.26, 0.22, 28), corkMat);
+    var dome = new THREE.Mesh(new THREE.SphereGeometry(0.29, 24, 14, 0, Math.PI * 2, 0, Math.PI / 2), corkMat);
+    dome.position.y = 0.11; dome.scale.y = 0.42;
+    stopper.add(cork); stopper.add(dome);
+    stopper.position.y = 2.6; stopper.visible = false;
+    model.stopper = stopper; group.add(stopper);
 
-    model.label = new THREE.Mesh(new THREE.CylinderGeometry(0.515, 0.515, 0.62, 36, 1, true), new THREE.MeshStandardMaterial({ color: 0xf3e6c8, roughness: 0.9, side: THREE.DoubleSide }));
-    model.label.position.y = -0.12; part(model.label, 9, 0.96, false); group.add(model.label);
-    var labelBand = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.06, 36, 1, true), new THREE.MeshStandardMaterial({ color: 0xb98a4c, roughness: 0.5, metalness: 0.4, side: THREE.DoubleSide }));
-    labelBand.position.y = 0.26; part(labelBand, 9, 0.96, false); group.add(labelBand);
+    model.label = new THREE.Mesh(new THREE.CylinderGeometry(0.505, 0.505, 0.52, 36, 1, true), new THREE.MeshStandardMaterial({ color: 0xe8d5a9, roughness: 0.9, side: THREE.DoubleSide }));
+    model.label.position.y = -0.28; part(model.label, 9, 0.92, false); group.add(model.label);
+    var labelBand = new THREE.Mesh(new THREE.CylinderGeometry(0.51, 0.51, 0.05, 36, 1, true), new THREE.MeshStandardMaterial({ color: 0xb98a4c, roughness: 0.5, metalness: 0.4, side: THREE.DoubleSide }));
+    labelBand.position.y = 0.0; part(labelBand, 9, 0.92, false); group.add(labelBand);
 
-    model.box = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.55, 0.5), new THREE.MeshStandardMaterial({ color: 0xd9c3a0, roughness: 0.9 }));
-    model.box.position.set(2.5, -0.82, -0.1); model.box.visible = false; group.add(model.box);
-    var lid = new THREE.Mesh(new THREE.BoxGeometry(0.84, 0.06, 0.54), new THREE.MeshStandardMaterial({ color: 0xb98a4c, roughness: 0.6 }));
-    lid.position.y = 0.28; model.box.add(lid);
+    model.box = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.45, 0.42), new THREE.MeshStandardMaterial({ color: 0xd9c3a0, roughness: 0.9 }));
+    model.box.position.set(2.3, -0.84, 0.12); model.box.visible = false; group.add(model.box);
+    var lid = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.05, 0.46), new THREE.MeshStandardMaterial({ color: 0xb98a4c, roughness: 0.6 }));
+    lid.position.y = 0.23; model.box.add(lid);
 
     function resize() {
       var w = el.wrap.clientWidth || 356, h = el.wrap.clientHeight || 445;
@@ -244,12 +263,12 @@
       if (model.step >= 9) {
         model.stopper.visible = true;
         var ps = Math.min(1, (model.elapsed - model.stepAt) / 0.7);
-        model.stopper.position.y = 2.6 + (1.11 - 2.6) * easeOutBack(ps);
+        model.stopper.position.y = 2.6 + (1.19 - 2.6) * easeOutBack(ps);
       }
       if (model.step >= 10) {
         model.box.visible = true;
         var pb = Math.min(1, (model.elapsed - model.stepAt) / 0.9);
-        model.box.position.x = 2.5 + (1.45 - 2.5) * easeOutBack(pb);
+        model.box.position.x = 2.3 + (1.0 - 2.3) * easeOutBack(pb);
       }
       model.glow.intensity += ((model.step >= 7 ? 0.9 : 0.1) - model.glow.intensity) * Math.min(1, dt * 2);
 
@@ -259,9 +278,27 @@
   }
 
   function failModel(message) {
-    var p = document.createElement("p");
-    p.className = "no-webgl"; p.textContent = message;
-    el.wrap.appendChild(p);
+    if (el.dragHint) el.dragHint.hidden = true;
+    el.wrap.innerHTML =
+      '<div class="fb-vial" aria-hidden="true">' +
+        '<i class="fb-cork"></i>' +
+        '<span class="fb-liquid"></span>' +
+        '<span class="fb-dots">' + new Array(11).join("<i></i>") + '</span>' +
+      '</div>' +
+      '<p class="fb-note">' + message + '</p>';
+    model.fallback = {
+      liquid: el.wrap.querySelector(".fb-liquid"),
+      dots: el.wrap.querySelectorAll(".fb-dots i")
+    };
+    syncFallback();
+  }
+
+  function syncFallback() {
+    if (!model.fallback) return;
+    model.fallback.liquid.style.height = (12 + model.step * 7) + "%";
+    Array.prototype.forEach.call(model.fallback.dots, function (d, i) {
+      d.classList.toggle("on", i < model.step);
+    });
   }
 
   function revealModel() {
@@ -270,6 +307,7 @@
     model.stepAt = model.elapsed;
     el.assembled.textContent = model.step;
     el.stepName.textContent = STEPS[model.step];
+    syncFallback();
   }
 
   function resetModel() {
@@ -278,9 +316,10 @@
     model.parts.forEach(function (p) { p.t = 0; p.mat.opacity = 0; p.mesh.visible = false; });
     model.cores.forEach(function (c) { c.core.emissiveIntensity = 0.5; });
     if (model.stopper) { model.stopper.visible = false; model.stopper.position.y = 2.6; }
-    if (model.box) { model.box.visible = false; model.box.position.x = 2.5; }
+    if (model.box) { model.box.visible = false; model.box.position.x = 2.3; }
     el.assembled.textContent = "0";
     el.stepName.textContent = STEPS[0];
+    syncFallback();
   }
 
   /* ---------- quiz ---------- */
@@ -395,8 +434,8 @@
     el.resultTitle.textContent = model.step === 10
       ? "The medicine is made."
       : (S.missed.length === 0 ? "All of those, clear." : "The vial is taking shape.");
-    el.resultSub.textContent = "You answered " + S.correct + " of " + total + " correctly · " +
-      model.step + " of 10 steps made.";
+    el.resultSub.textContent = "You answered " + S.correct + " of " + total + " correctly" +
+      (S.mode === "missed" ? " in the mending pass" : "") + " · " + model.step + " of 10 steps made.";
     el.resultScore.textContent = S.score.toLocaleString();
     el.resultCorrect.textContent = S.correct + "/" + total;
 

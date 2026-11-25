@@ -1,6 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; }
 body {
+  min-height: 100vh;
   min-height: 100dvh;
   font-family: "Karla", system-ui, -apple-system, "Segoe UI", sans-serif;
   color: #f6e8cc;
@@ -10,6 +11,7 @@ body {
 [hidden] { display: none !important; }
 
 .room {
+  min-height: 100vh;
   min-height: 100dvh;
   padding: clamp(16px, 3vw, 36px) 14px 44px;
   background:
@@ -149,7 +151,7 @@ h1 {
 .specimen { position: sticky; top: 18px; }
 .jar {
   position: relative; border-radius: 16px; overflow: hidden;
-  aspect-ratio: 4 / 5;
+  height: clamp(320px, 42vw, 445px);
   background:
     radial-gradient(circle at 50% 38%, rgba(255, 210, 140, .18), rgba(255, 190, 110, .04) 46%, transparent 68%),
     radial-gradient(circle at 50% 110%, rgba(255, 170, 70, .10), transparent 60%),
@@ -157,7 +159,7 @@ h1 {
   border: 1px solid rgba(201, 161, 90, .35);
   box-shadow: inset 0 0 60px rgba(0, 0, 0, .6), 0 26px 50px -18px rgba(0, 0, 0, .7);
 }
-.canvas-wrap { position: absolute; inset: 0; }
+.canvas-wrap { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
 .canvas-wrap canvas { display: block; width: 100%; height: 100%; }
 .jar-shine {
   position: absolute; inset: 10px 14px auto 14px; height: 42%;
@@ -175,13 +177,57 @@ h1 {
 .canvas-wrap canvas { cursor: grab; touch-action: none; }
 .canvas-wrap canvas:active { cursor: grabbing; }
 .no-webgl { position: absolute; inset: 0; display: grid; place-items: center; padding: 18px; text-align: center; font-size: 13px; color: rgba(246, 232, 204, .6); }
+.fb-vial {
+  position: absolute; left: 50%; top: 50%; width: 96px; height: 210px;
+  margin: -105px 0 0 -48px;
+  border: 2px solid rgba(223, 242, 238, .35);
+  border-bottom-left-radius: 14px; border-bottom-right-radius: 14px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, .06), transparent 40%);
+}
+.fb-cork {
+  position: absolute; left: 50%; top: -18px; width: 36px; height: 18px;
+  margin-left: -18px; border-radius: 3px; background: #a9744f;
+}
+.fb-vial::before {
+  content: ""; position: absolute; left: 50%; top: -26px; width: 40px; height: 26px;
+  margin-left: -20px; border: 2px solid rgba(223, 242, 238, .35); border-bottom: none;
+  border-radius: 5px 5px 0 0;
+}
+.fb-vial::after {
+  content: ""; position: absolute; left: 50%; bottom: -18px; width: 150px; height: 18px;
+  margin-left: -75px; border-radius: 50%; background: #4d3220;
+}
+.fb-liquid {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 12%;
+  border-radius: 0 0 12px 12px;
+  background: linear-gradient(180deg, rgba(111, 184, 168, .8), rgba(43, 107, 94, .8));
+  transition: height .5s ease;
+}
+.fb-dots { position: absolute; inset: 6px; display: block; }
+.fb-dots i {
+  position: absolute; width: 12px; height: 12px; border-radius: 50%;
+  background: radial-gradient(circle at 45% 40%, #fff0c4, #ffc46a 60%, #6f9e63);
+  opacity: 0; transform: scale(.4); transition: opacity .4s ease, transform .4s ease;
+}
+.fb-dots i.on { opacity: .95; transform: scale(1); }
+.fb-dots i:nth-child(1) { left: 26%; bottom: 12%; }
+.fb-dots i:nth-child(2) { left: 54%; bottom: 16%; }
+.fb-dots i:nth-child(3) { left: 38%; bottom: 25%; }
+.fb-dots i:nth-child(4) { left: 60%; bottom: 30%; }
+.fb-dots i:nth-child(5) { left: 22%; bottom: 34%; }
+.fb-dots i:nth-child(6) { left: 44%; bottom: 42%; }
+.fb-dots i:nth-child(7) { left: 62%; bottom: 48%; }
+.fb-dots i:nth-child(8) { left: 32%; bottom: 54%; }
+.fb-dots i:nth-child(9) { left: 50%; bottom: 62%; }
+.fb-dots i:nth-child(10) { left: 38%; bottom: 70%; }
+.fb-note { position: absolute; left: 0; right: 0; bottom: 10px; margin: 0; text-align: center; font-size: 11px; color: rgba(246, 232, 204, .45); }
 
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 860px) {
   .stage { grid-template-columns: minmax(0, 1fr); }
   .specimen { order: -1; position: static; }
-  .jar { aspect-ratio: 16 / 10; max-height: 300px; }
+  .jar { height: 260px; max-height: 300px; }
   .caption { margin-top: 8px; }
 }
 @media (max-width: 680px) {
